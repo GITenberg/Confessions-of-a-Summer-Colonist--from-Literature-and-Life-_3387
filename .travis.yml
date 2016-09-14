@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: SGW5oTSxcyxNBJ1Ylbj8ydGf9K3lAc5RRjeWA1fO/q0SCvj2Gh/gMp0X+HX37WcZsM3o3XSVr1/ORUDPeV1fzRkugebbT9StlGkq7pUZyZlnnGARRoOcrT+dWbaY/ri8n743hcVl3B4uoVcmPskAX5Wz2Zv3va0zXpomkgQhuAd1ZLJN0B7S3cAaXfuRPpc+blpx4Nq1aam5kRqeYnzBMPoYOInrTpj3gZKDDlvB3bensc72gso0If4oQLtlDCsvNzoutncmR+RKpAELMofJT9Kmab2MvgoZwvM+xc563Ih0w3qEnhdOeZ0I8Uy2UqN5RGqkRQFseRo6QJyZvBDMRCGJtQ764In7c70BCQXF1kNz14ule/2CliDFNzYiUiaVeGCc+0xt8DVzaIebWCMxn70BTU43rHemacnGk37s+WJlZ8Eeqfk7x87wv3kEiDlC0GcVk8SCpr7My4se6liEM5UnCWg12A9E2/Xe8V1JcyGl2hv3DM3Hh84aywNce9dJa/GOAAd9lgr2Xw8hWhskTQ2OZ6L9abkt2S2G+wpY4S0p66V/Tzyk0+CflCBdMgJBXJnY4p54SNyopgN7H1Dbvg1mNW3FmQ+LxRzckVVT3gmcSg6oFLrSwPcIkXCwuGiPwNF9wOOZi4awOqafsLHiBCNF/RG5cFi97Y8lVXq1krY=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Confessions-of-a-Summer-Colonist--from-Literature-and-Life-_3387
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
